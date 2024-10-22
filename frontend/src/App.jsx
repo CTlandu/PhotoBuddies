@@ -30,8 +30,6 @@ import About from "./pages/About/About";
 import CookieConsent from "./components/CookieConsent";
 import Test from "./pages/Test";
 import User_Settings from "./pages/User_Settings/User_Settings";
-import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/Navbar";
 
 console.log("appName:", import.meta.env.VITE_APP_NAME);
 console.log("apiDomain:", import.meta.env.VITE_API_DOMAIN);
@@ -52,7 +50,48 @@ SuperTokens.init({
     ThirdParty.init({
       signInAndUpFeature: {
         providers: [Google.init()],
-        // 移除 onHandleEvent
+        onHandleEvent: async (context) => {
+          console.log("登录onHandleEvent called", context);
+          if (context.action === "SUCCESS") {
+            console.log("第三方登录成功，尝试保存用户信息");
+            let { id, email } = context.user;
+            if (!email) {
+              console.error("Email is missing for user:", id);
+              return;
+            }
+            const userInfo = { id, email };
+            try {
+              console.log("发送请求到 /api/thirdPartyLogin");
+              const response = await fetch(
+                `${import.meta.env.VITE_API_DOMAIN}/api/thirdPartyLogin`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(userInfo),
+                  credentials: "include", // 添加这行以确保跨域请求包含凭证
+                }
+              );
+              console.log("响应状态:", response.status);
+              // 重新加载主页面，以重新尝试获取token
+              window.location.reload();
+              if (response.ok) {
+                const responseData = await response.json();
+                console.log("响应数据:", responseData);
+                console.log("第三方用户信息保存成功");
+
+                // 等待 token 设置完成
+                const newToken = await getToken();
+                setAccessToken(newToken);
+              } else {
+                console.error("保存第三方用户信息失败");
+              }
+            } catch (error) {
+              console.error("保存第三方用户信息时出错:", error);
+            }
+          }
+          // 重新加载主页面，以重新尝试获取token
+          window.location.reload();
+        },
       },
     }),
     EmailVerification.init({
@@ -137,73 +176,67 @@ function App() {
       <CookieConsent />
 
       <SuperTokensWrapper>
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              {/*This renders the login UI on the /auth route*/}
-              {/* {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [ThirdPartyPreBuiltUI, EmailPasswordPreBuiltUI, EmailVerificationPreBuiltUI])} */}
-              {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [
-                ThirdPartyPreBuiltUI,
-                EmailPasswordPreBuiltUI,
-                EmailVerificationPreBuiltUI,
-              ])}
+        <BrowserRouter>
+          <Routes>
+            {/*This renders the login UI on the /auth route*/}
+            {/* {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [ThirdPartyPreBuiltUI, EmailPasswordPreBuiltUI, EmailVerificationPreBuiltUI])} */}
+            {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [
+              ThirdPartyPreBuiltUI,
+              EmailPasswordPreBuiltUI,
+              EmailVerificationPreBuiltUI,
+            ])}
 
-              {/*Your app routes*/}
+            {/*Your app routes*/}
 
-              {/* free routes */}
-              <Route index element={<Home token={accessToken} />}></Route>
-              <Route
-                exact
-                path="/home"
-                element={<Home token={accessToken} />}
-              />
-              <Route
-                exact
-                path="/findmatches"
-                element={<FindMatches token={accessToken} />}
-              ></Route>
-              <Route
-                exact
-                path="/about"
-                element={<About token={accessToken} />}
-              ></Route>
-              <Route
-                exact
-                path="/test"
-                element={<Test token={accessToken} />}
-              ></Route>
-              {/* <Route exact path="/login" element={<Login />}></Route>
+            {/* free routes */}
+            <Route index element={<Home token={accessToken} />}></Route>
+            <Route exact path="/home" element={<Home token={accessToken} />} />
+            <Route
+              exact
+              path="/findmatches"
+              element={<FindMatches token={accessToken} />}
+            ></Route>
+            <Route
+              exact
+              path="/about"
+              element={<About token={accessToken} />}
+            ></Route>
+            <Route
+              exact
+              path="/test"
+              element={<Test token={accessToken} />}
+            ></Route>
+            {/* <Route exact path="/login" element={<Login />}></Route>
           <Route exact path="/register" element={<Register />}></Route> */}
-              <Route path="*" element={<NoPage token={accessToken} />}></Route>
+            <Route path="*" element={<NoPage token={accessToken} />}></Route>
 
-              {/* protected routes */}
-              <Route
-                path="/profile"
-                element={
-                  <SessionAuth>
-                    <Profile token={accessToken} />
-                  </SessionAuth>
-                }
-              ></Route>
-              <Route
-                path="/portfolio"
-                element={
-                  <SessionAuth>
-                    <Portfolio token={accessToken} />
-                  </SessionAuth>
-                }
-              ></Route>
-              <Route
-                path="/usersettings"
-                element={
-                  <SessionAuth>
-                    <User_Settings token={accessToken} />
-                  </SessionAuth>
-                }
-              ></Route>
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
+            {/* protected routes */}
+            <Route
+              path="/profile"
+              element={
+                <SessionAuth>
+                  <Profile token={accessToken} />
+                </SessionAuth>
+              }
+            ></Route>
+            <Route
+              path="/portfolio"
+              element={
+                <SessionAuth>
+                  <Portfolio token={accessToken} />
+                </SessionAuth>
+              }
+            ></Route>
+            <Route
+              path="/usersettings"
+              element={
+                <SessionAuth>
+                  <User_Settings token={accessToken} />
+                </SessionAuth>
+              }
+            ></Route>
+          </Routes>
+        </BrowserRouter>
       </SuperTokensWrapper>
     </>
   );
