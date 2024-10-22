@@ -11,9 +11,8 @@ const express = require("express");
 // const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
-// require database connection
-const dbConnect = require("./db/dbConnect");
-const User = require("./db/userModel");
+// 引入Firebase
+const { db } = require("./firebaseInit");
 // 老的auth模块
 // const auth = require('./auth');
 // const { auth } = require("express-oauth2-jwt-bearer");
@@ -30,8 +29,6 @@ const supertokens = require("supertokens-node");
 const { errorHandler } = require("supertokens-node/framework/express");
 
 const supertokensInit = require("./supertokensInit");
-
-dbConnect();
 
 supertokensInit();
 

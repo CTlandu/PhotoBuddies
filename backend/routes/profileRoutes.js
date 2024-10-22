@@ -1,13 +1,15 @@
 const express = require("express");
-const User = require("../db/userModel");
+const { getUserById, updateUser, createUser } = require("../models/userModel");
 const router = express.Router();
 
 // 获取用户资料
 router.get("/profile", async (req, res) => {
   try {
     const userId = req.query.id;
-    const user = await User.findOne({ id: userId });
+    console.log("Fetching profile for user ID:", userId); // 添加这行日志
+    const user = await getUserById(userId);
     if (!user) {
+      console.log("User not found for ID:", userId); // 添加这行日志
       return res.status(404).json({ message: "User not found" });
     }
     res.json(user);
@@ -33,27 +35,25 @@ router.put("/profile", async (req, res) => {
     showAgeOnCard,
   } = req.body;
   try {
-    const user = await User.findOne({ id });
-    if (!user) {
+    const updatedUser = await updateUser(id, {
+      preferredName,
+      lastName,
+      pronouns,
+      birthday,
+      zipcode,
+      avatar,
+      contact,
+      addresses,
+      showEmailOnCard,
+      showAgeOnCard,
+    });
+    if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
-    user.preferredName =
-      preferredName !== undefined ? preferredName : user.preferredName;
-    user.lastName = lastName !== undefined ? lastName : user.lastName;
-    user.pronouns = pronouns !== undefined ? pronouns : user.pronouns;
-    user.birthday = birthday !== undefined ? birthday : user.birthday;
-    user.showEmailOnCard =
-      showEmailOnCard !== undefined ? showEmailOnCard : user.showEmailOnCard;
-    user.showAgeOnCard =
-      showAgeOnCard !== undefined ? showAgeOnCard : user.showAgeOnCard;
-    user.zipcode = zipcode !== undefined ? zipcode : user.zipcode;
-    user.avatar = avatar !== undefined ? avatar : user.avatar;
-    user.addresses = addresses || user.addresses;
-    user.contact = { ...user.contact, ...contact };
-    await user.save();
-    res
-      .status(200)
-      .json({ message: "User profile updated successfully", user });
+    res.status(200).json({
+      message: "User profile updated successfully",
+      user: updatedUser,
+    });
   } catch (error) {
     console.error("Error updating user profile:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -64,13 +64,14 @@ router.put("/profile", async (req, res) => {
 router.post("/saveUserInfo", async (req, res) => {
   const userInfo = req.body;
   try {
-    const newUser = new User(userInfo);
-    await newUser.save();
-    console.log("User information saved:", userInfo);
-    res.status(200).send("User information saved successfully");
+    const newUser = await createUser(userInfo);
+    console.log("User information saved:", newUser);
+    res
+      .status(200)
+      .json({ message: "User information saved successfully", user: newUser });
   } catch (error) {
     console.error("Error saving user information:", error);
-    res.status(500).send("Internal server error");
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

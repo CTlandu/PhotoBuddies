@@ -1,33 +1,46 @@
 const express = require("express");
-const User = require("../db/userModel");
+const { db } = require("../firebaseInit");
 const router = express.Router();
 
 // 获取热门城市
 router.get("/popularCities", async (req, res) => {
+  console.log("Entering popularCities route");
   try {
-    const popularCities = await User.aggregate([
-      { $unwind: "$addresses" },
-      {
-        $group: {
-          _id: "$addresses.formattedCity",
-          count: { $sum: 1 },
-        },
-      },
-      { $match: { _id: { $ne: null, $ne: "" } } }, // 添加这行来过滤掉 null 和空字符串
-      { $sort: { count: -1 } },
-      { $limit: 5 },
-      {
-        $project: {
-          _id: 0,
-          city: "$_id",
-          count: 1,
-        },
-      },
-    ]);
+    console.log("Fetching cities snapshot");
+    const citiesSnapshot = await db
+      .collection("users")
+      .select("addresses")
+      .get();
 
-    res
-      .status(200)
-      .json(popularCities.map((item) => item.city).filter(Boolean));
+    console.log("Cities snapshot size:", citiesSnapshot.size);
+
+    console.log("Processing cities data");
+    const cityCounts = {};
+    citiesSnapshot.forEach((doc) => {
+      const userData = doc.data();
+      console.log("User data:", JSON.stringify(userData));
+      const addresses = userData.addresses;
+      console.log("Addresses:", JSON.stringify(addresses));
+      if (addresses && typeof addresses === "object") {
+        Object.values(addresses).forEach((address) => {
+          if (address && typeof address.formattedCity === "string") {
+            cityCounts[address.formattedCity] =
+              (cityCounts[address.formattedCity] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    console.log("City counts:", JSON.stringify(cityCounts));
+
+    console.log("Sorting and slicing popular cities");
+    const popularCities = Object.entries(cityCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([city]) => city);
+
+    console.log("Popular cities:", popularCities);
+    res.status(200).json(popularCities);
   } catch (error) {
     console.error("Error fetching popular cities:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -38,26 +51,12 @@ router.get("/popularCities", async (req, res) => {
 router.get("/fetchAll", async (req, res) => {
   const { role, city, page = 1, limit = 6 } = req.query;
   try {
-    let query = {};
-    let projection = {
-      preferredName: 1,
-      email: 1,
-      avatar: 1,
-      pronouns: 1,
-      birthday: 1,
-      zipcode: 1,
-      contact: 1,
-      addresses: 1,
-      showEmailOnCard: 1,
-      showAgeOnCard: 1,
-    };
+    let query = db.collection("users");
 
     if (role === "model") {
-      query["model_info.model_images"] = { $ne: [] };
-      projection.model_info = 1;
+      query = query.where("model_info.model_images", "!=", []);
     } else if (role === "photographer") {
-      query["photographer_info.photographer_images"] = { $ne: [] };
-      projection.photographer_info = 1;
+      query = query.where("photographer_info.photographer_images", "!=", []);
     } else {
       return res.status(400).json({
         message: "Invalid role parameter. Must be 'model' or 'photographer'.",
@@ -65,20 +64,28 @@ router.get("/fetchAll", async (req, res) => {
     }
 
     if (city && city.trim() !== "") {
-      query["addresses.formattedCity"] = city.trim();
+      query = query.where("addresses", "array-contains", {
+        formattedCity: city.trim(),
+      });
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const users = await User.find(query, projection)
-      .skip(skip)
-      .limit(parseInt(limit));
+    const startAfter = (parseInt(page) - 1) * parseInt(limit);
+    const snapshot = await query
+      .limit(parseInt(limit))
+      .offset(startAfter)
+      .get();
 
-    const totalCount = await User.countDocuments(query);
+    const users = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const totalCount = (await query.count().get()).data().count;
 
     res.status(200).json({
       users,
       totalCount,
-      hasMore: skip + users.length < totalCount,
+      hasMore: startAfter + users.length < totalCount,
     });
   } catch (error) {
     console.error("Error fetching users:", error);
