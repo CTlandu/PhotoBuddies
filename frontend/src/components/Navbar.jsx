@@ -1,81 +1,27 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import React, { useEffect, useRef, useContext } from "react";
 import { signOut } from "supertokens-auth-react/recipe/session";
 import { redirectToAuth } from "supertokens-auth-react";
-import Session from "supertokens-auth-react/recipe/session";
 import emptyAvatar from "../assets/empty_avatar.jpg";
 import FeatureVote from "./FeaturesVote";
 import { FaLightbulb } from "react-icons/fa"; // 导入灯泡图标
+import { AuthContext } from "../context/AuthContext";
 
-const Navbar = ({ token }) => {
-  const [avatar, setAvatar] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState(null);
+const Navbar = () => {
+  const { accessToken, userInfo, loading } = useContext(AuthContext);
 
   const menuRef = useRef(null); // 头像部分的菜单
   const mobileMenuRef = useRef(null); // 小屏幕下的菜单
 
-  // 页面刷新时，获取头像等登录信息
-  useEffect(() => {
-    if (token) {
-      console.log("Navbar收到了Token");
-      fetchUserInfo();
-    } else {
-      setTimeout(() => {
-        // 如果1秒后还没有收到token，则应该是真的没有了，遂呈现未登录状态的Navbar
-        console.log("Navbar没收到Token!");
-        setLoading(false); // 如果没有token，不发起请求，直接结束loading状态
-      }, 1000);
-    }
-  }, [token]);
-
-  async function fetchUserInfo() {
-    try {
-      const userId = await Session.getUserId();
-
-      // 通过 userId 获取用户资料
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_DOMAIN}/api/profile`,
-        {
-          params: { id: userId },
-        }
-      );
-      // 设置头像
-      setAvatar(response.data.avatar);
-
-      // 设置用户信息
-      setUserInfo({
-        userId: userId,
-        email: response.data.email,
-        name: `${response.data.preferredName || ""} ${
-          response.data.lastName || ""
-        }`.trim(),
-        imgUrl: response.data.avatar || emptyAvatar,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // supertoken提供的logout方法（signOut)
-  async function onLogout() {
+  // supertoken 提供的 logout 方法（signOut)
+  const onLogout = async () => {
     await signOut();
     window.location.href = "/";
-  }
+  };
 
-  // 点击登录按钮后，跳转到supertoken提供的login页面
-  async function onLogin() {
+  const onLogin = () => {
     redirectToAuth();
-  }
+  };
 
-  /**
-   * 点击菜单外时处理函数
-   *
-   * @param event 鼠标点击事件对象
-   * @returns 无返回值
-   */
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -95,7 +41,7 @@ const Navbar = ({ token }) => {
     };
   }, []);
 
-  // 若页面正在加载（还没获取到token），则返回null（空页面）
+  // 若页面正在加载（还没获取到 token），则返回 null（空页面）
   if (loading) {
     return null;
   }
@@ -194,7 +140,7 @@ const Navbar = ({ token }) => {
             {/* 右侧部分 - 登录/头像 */}
             <div className="flex-none flex items-center ml-auto">
               <ul className="menu menu-horizontal px-1">
-                {token ? (
+                {accessToken && userInfo ? (
                   <li className="flex items-center">
                     <details className="relative" ref={menuRef}>
                       <summary
@@ -209,7 +155,7 @@ const Navbar = ({ token }) => {
                         >
                           <img
                             className="w-8 h-8 md:w-10 md:h-10 object-cover rounded-full"
-                            src={avatar || emptyAvatar}
+                            src={userInfo.imgUrl || emptyAvatar}
                             alt="Avatar"
                           />
                         </button>
@@ -218,12 +164,6 @@ const Navbar = ({ token }) => {
                         <li>
                           <a href="/profile">Profile</a>
                         </li>
-                        {/* <li>
-                          <a href="/portfolio">Portfolio</a>
-                        </li> */}
-                        {/* <li>
-                          <a href="/portfolio">Favorites & Likes</a>
-                        </li> */}
                         <li>
                           <a href="/usersettings">Settings</a>
                         </li>
