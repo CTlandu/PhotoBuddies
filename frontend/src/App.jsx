@@ -31,15 +31,11 @@ import CookieConsent from "./components/CookieConsent";
 import Test from "./pages/Test";
 import User_Settings from "./pages/User_Settings/User_Settings";
 
-// const APP_NAME = import.meta.env.VITE_APP_NAME;
-// const API_DOMAIN = import.meta.env.VITE_APP_API_DOMAIN;
-// const WEB_DOMAIN = import.meta.env.VITE_WEBSITE_DOMAIN;
-
-// console.log('App Name:', import.meta.env.VITE_APP_NAME);
-// console.log('API Domain:', import.meta.env.VITE_API_DOMAIN);
-// console.log('Website Domain:', import.meta.env.VITE_WEBSITE_DOMAIN);
-// console.log('API Base Path:', import.meta.env.VITE_APP_API_BASE_PATH);
-// console.log('Website Base Path:', import.meta.env.VITE_WEBSITE_BASE_PATH);
+console.log("appName:", import.meta.env.VITE_APP_NAME);
+console.log("apiDomain:", import.meta.env.VITE_API_DOMAIN);
+console.log("websiteDomain:", import.meta.env.VITE_WEBSITE_DOMAIN);
+console.log("apiBasePath:", import.meta.env.VITE_APP_API_BASE_PATH);
+console.log("websiteBasePath:", import.meta.env.VITE_WEBSITE_BASE_PATH);
 
 SuperTokens.init({
   appInfo: {
@@ -51,72 +47,93 @@ SuperTokens.init({
     websiteBasePath: import.meta.env.VITE_WEBSITE_BASE_PATH,
   },
   recipeList: [
-    // 第三方登录选项
-    // ThirdParty.init({
-    //     signInAndUpFeature: {
-    //         providers: [
-    //             Github.init(),
-    //             Google.init(),
-    //         ]
-    //     }
-    // }),
+    ThirdParty.init({
+      signInAndUpFeature: {
+        providers: [Google.init()],
+        onHandleEvent: async (context) => {
+          console.log("登录onHandleEvent called", context);
+          if (context.action === "SUCCESS") {
+            console.log("第三方登录成功，尝试保存用户信息");
+            let { id, email } = context.user;
+            if (!email) {
+              console.error("Email is missing for user:", id);
+              return;
+            }
+            const userInfo = { id, email };
+            try {
+              console.log("发送请求到 /api/thirdPartyLogin");
+              const response = await fetch(
+                `${import.meta.env.VITE_API_DOMAIN}/api/thirdPartyLogin`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(userInfo),
+                  credentials: "include", // 添加这行以确保跨域请求包含凭证
+                }
+              );
+              console.log("响应状态:", response.status);
+              if (response.ok) {
+                const responseData = await response.json();
+                console.log("响应数据:", responseData);
+                console.log("第三方用户信息保存成功");
+
+                // 等待 token 设置完成
+                const newToken = await getToken();
+                setAccessToken(newToken);
+
+                // 使用 setTimeout 来确保状态更新后再跳转
+                setTimeout(() => {
+                  window.location.href = "/";
+                }, 100);
+              } else {
+                console.error("保存第三方用户信息失败");
+              }
+            } catch (error) {
+              console.error("保存第三方用户信息时出错:", error);
+            }
+          }
+        },
+      },
+    }),
     EmailVerification.init({
-      mode: "OPTIONAL", //OR OPTIONAL
+      mode: "REQUIRED",
     }),
     EmailPassword.init({
       contactMethod: "EMAIL_OR_PHONE",
-
       onHandleEvent: async (context) => {
-        if (context.action === "PASSWORDLESS_RESTART_FLOW") {
-          // TODO:
-        } else if (context.action === "PASSWORDLESS_CODE_SENT") {
-          // TODO:
-        } else {
-          let { id, emails, phoneNumbers, timeJoined } = context.user;
-          if (context.action === "SUCCESS") {
-            const userInfo = {
-              id: id,
-              email: emails[0],
-              phoneNumber: phoneNumbers[0],
-              timeJoined: timeJoined,
-            };
-            // when sign up
-            if (
-              context.isNewRecipeUser &&
-              context.user.loginMethods.length === 1
-            ) {
-              console.log(`sign up: ${id}, ${emails[0]},
-                          phone number: ${
-                            phoneNumbers[0]
-                          }, time joined: ${timeJoined},
-                         contextUser: ${JSON.stringify(context.user)}`);
-              await fetch(
-                `${import.meta.env.VITE_API_DOMAIN}/api/saveUserInfo`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(userInfo),
-                }
-              );
-              // 重新加载主页面，以重新尝试获取token
-              window.location.reload();
-            }
-            // when log in
-            else {
-              console.log(`log in: ${id}, ${emails[0]},
-                          phone number: ${
-                            phoneNumbers[0]
-                          }, time joined: ${timeJoined},
-                          contextUser: ${JSON.stringify(context.user)}`);
-              // 重新加载主页面，以重新尝试获取token
-              window.location.reload();
-            }
-          } else {
-            console.log(
-              "SuperTokens: action is not SUCCESS. Check either supertoken or mongoDB connection"
+        console.log("EmailPassword onHandleEvent called", context);
+        if (context.action === "EMAIL_VERIFICATION_SUCCESSFUL") {
+          console.log("邮箱验证成功，尝试保存用户信息");
+          let { id, email } = context.user;
+          const userInfo = {
+            id: id,
+            email: email,
+          };
+          try {
+            console.log("发送请求到 /api/saveUserInfo");
+            const response = await fetch(
+              `${import.meta.env.VITE_API_DOMAIN}/api/saveUserInfo`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userInfo),
+                credentials: "include",
+              }
             );
+            console.log("响应状态:", response.status);
+            if (response.ok) {
+              const responseData = await response.json();
+              console.log("响应数据:", responseData);
+              console.log("用户信息保存成功");
+              // 可以在这里添加额外的逻辑，比如重定向到主页
+              window.location.href = "/";
+            } else {
+              console.error("保存用户信息失败");
+            }
+          } catch (error) {
+            console.error("保存用户信息时出错:", error);
           }
         }
       },
@@ -162,6 +179,7 @@ function App() {
             {/*This renders the login UI on the /auth route*/}
             {/* {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [ThirdPartyPreBuiltUI, EmailPasswordPreBuiltUI, EmailVerificationPreBuiltUI])} */}
             {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [
+              ThirdPartyPreBuiltUI,
               EmailPasswordPreBuiltUI,
               EmailVerificationPreBuiltUI,
             ])}

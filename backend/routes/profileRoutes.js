@@ -1,6 +1,10 @@
 const express = require("express");
 const User = require("../db/userModel");
 const router = express.Router();
+const {
+  verifySession,
+} = require("supertokens-node/recipe/session/framework/express");
+const { getUser } = require("supertokens-node/recipe/emailverification");
 
 // 获取用户资料
 router.get("/profile", async (req, res) => {
@@ -61,16 +65,64 @@ router.put("/profile", async (req, res) => {
 });
 
 // 用户注册
-router.post("/saveUserInfo", async (req, res) => {
-  const userInfo = req.body;
+router.post("/saveUserInfo", verifySession(), async (req, res) => {
+  const session = req.session;
+  const userId = session.getUserId();
+
   try {
+    const user = await getUser(userId);
+    if (!user.isEmailVerified) {
+      return res.status(403).json({ message: "Email not verified" });
+    }
+
+    const userInfo = {
+      id: userId,
+      email: user.email,
+      ...req.body,
+    };
+
     const newUser = new User(userInfo);
     await newUser.save();
     console.log("User information saved:", userInfo);
-    res.status(200).send("User information saved successfully");
+    res
+      .status(200)
+      .json({ message: "User information saved successfully", user: newUser });
   } catch (error) {
     console.error("Error saving user information:", error);
-    res.status(500).send("Internal server error");
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// 添加一个新的路由来处理第三方登录后的用户信息保存
+router.post("/thirdPartyLogin", async (req, res) => {
+  console.log("thirdPartyLogin route called without verifySession");
+  const session = req.session;
+  const userId = session.getUserId();
+
+  try {
+    const user = await getUser(userId);
+    const userInfo = {
+      id: userId,
+      email: user.email,
+      ...req.body, // 其他用户信息
+    };
+
+    // 检查用户是否已经存在
+    let existingUser = await User.findOne({ id: userId });
+    if (!existingUser) {
+      const newUser = new User(userInfo);
+      await newUser.save();
+      console.log("Third-party user information saved:", userInfo);
+    } else {
+      console.log("User already exists:", existingUser);
+    }
+
+    res
+      .status(200)
+      .json({ message: "User information processed successfully" });
+  } catch (error) {
+    console.error("Error processing third-party user information:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
