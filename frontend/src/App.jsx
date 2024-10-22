@@ -30,7 +30,6 @@ import About from "./pages/About/About";
 import CookieConsent from "./components/CookieConsent";
 import Test from "./pages/Test";
 import User_Settings from "./pages/User_Settings/User_Settings";
-import Navbar from "./components/Navbar";
 
 console.log("appName:", import.meta.env.VITE_APP_NAME);
 console.log("apiDomain:", import.meta.env.VITE_API_DOMAIN);
@@ -52,6 +51,7 @@ SuperTokens.init({
       signInAndUpFeature: {
         providers: [Google.init()],
         onHandleEvent: async (context) => {
+          console.log("登录onHandleEvent called", context);
           if (context.action === "SUCCESS") {
             console.log("第三方登录成功，尝试保存用户信息");
             let { id, email } = context.user;
@@ -76,7 +76,6 @@ SuperTokens.init({
                 const responseData = await response.json();
                 console.log("响应数据:", responseData);
                 console.log("第三方用户信息保存成功");
-                await updateToken(); // 更新 token
 
                 // 等待 token 设置完成
                 const newToken = await getToken();
@@ -103,8 +102,7 @@ SuperTokens.init({
       contactMethod: "EMAIL_OR_PHONE",
       onHandleEvent: async (context) => {
         console.log("EmailPassword onHandleEvent called", context);
-        if (context.action === "SUCCESS") {
-          await updateToken(); // 更新 token
+        if (context.action === "EMAIL_VERIFICATION_SUCCESSFUL") {
           console.log("邮箱验证成功，尝试保存用户信息");
           let { id, email } = context.user;
           const userInfo = {
@@ -161,7 +159,6 @@ async function getToken() {
 
 function App() {
   const [accessToken, setAccessToken] = useState(null);
-
   useEffect(() => {
     async function fetchToken() {
       const token = await getToken();
@@ -170,12 +167,6 @@ function App() {
 
     fetchToken();
   }, []);
-
-  // 添加一个函数来更新 token
-  const updateToken = async () => {
-    const newToken = await getToken();
-    setAccessToken(newToken);
-  };
 
   return (
     <>
