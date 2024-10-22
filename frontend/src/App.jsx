@@ -72,6 +72,8 @@ SuperTokens.init({
                 }
               );
               console.log("响应状态:", response.status);
+              // 重新加载主页面，以重新尝试获取token
+              window.location.reload();
               if (response.ok) {
                 const responseData = await response.json();
                 console.log("响应数据:", responseData);
@@ -80,11 +82,6 @@ SuperTokens.init({
                 // 等待 token 设置完成
                 const newToken = await getToken();
                 setAccessToken(newToken);
-
-                // 使用 setTimeout 来确保状态更新后再跳转
-                setTimeout(() => {
-                  window.location.href = "/";
-                }, 100);
               } else {
                 console.error("保存第三方用户信息失败");
               }
@@ -92,6 +89,8 @@ SuperTokens.init({
               console.error("保存第三方用户信息时出错:", error);
             }
           }
+          // 重新加载主页面，以重新尝试获取token
+          window.location.reload();
         },
       },
     }),
@@ -136,11 +135,14 @@ SuperTokens.init({
             console.error("保存用户信息时出错:", error);
           }
         }
+        // 重新加载主页面，以重新尝试获取token
+        window.location.reload();
       },
     }),
     Session.init({
       tokenTransferMethod: "header",
       maxRetryAttemptsForSessionRefresh: 10,
+      exposeAccessTokenToFrontendInCookieBasedAuth: true,
     }),
   ],
 });

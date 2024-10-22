@@ -145,6 +145,7 @@ function superTokensInit() {
       Session.init({
         exposeAccessTokenToFrontendInCookieBasedAuth: true,
         cookieSameSite: "None",
+        tokenTransferMethod: "header",
       }), // initializes session features
     ],
   });
