@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import "./index.css";
 // importing SuperTokens packages
@@ -23,13 +23,13 @@ import * as reactRouterDom from "react-router-dom";
 import Home from "./pages/Home/Home";
 import NoPage from "./pages/NoPage";
 import Profile from "./pages/Profile/Profile";
+import { useEffect, useState, createContext } from "react";
 import Portfolio from "./pages/Portfolio/Portfolio";
 import FindMatches from "./pages/FindMatches/FindMatches";
 import About from "./pages/About/About";
 import CookieConsent from "./components/CookieConsent";
 import Test from "./pages/Test";
 import User_Settings from "./pages/User_Settings/User_Settings";
-import axios from "axios";
 
 console.log("appName:", import.meta.env.VITE_APP_NAME);
 console.log("apiDomain:", import.meta.env.VITE_API_DOMAIN);
@@ -54,7 +54,6 @@ SuperTokens.init({
           console.log("登录onHandleEvent called", context);
           if (context.action === "SUCCESS") {
             console.log("第三方登录成功，尝试保存用户信息");
-            await updateTokenAndUserInfo();
             let { id, email } = context.user;
             if (!email) {
               console.error("Email is missing for user:", id);
@@ -73,6 +72,8 @@ SuperTokens.init({
                 }
               );
               console.log("响应状态:", response.status);
+              // 重新加载主页面，以重新尝试获取token
+              window.location.reload();
               if (response.ok) {
                 const responseData = await response.json();
                 console.log("响应数据:", responseData);
@@ -88,7 +89,8 @@ SuperTokens.init({
               console.error("保存第三方用户信息时出错:", error);
             }
           }
-          window.history.pushState({}, "", "/");
+          // 重新加载主页面，以重新尝试获取token
+          window.location.reload();
         },
       },
     }),
@@ -133,11 +135,8 @@ SuperTokens.init({
             console.error("保存用户信息时出错:", error);
           }
         }
-        await updateTokenAndUserInfo();
-        // 不要使用 window.location.reload()，而是使用 React Router 进行导航
-        window.history.pushState({}, "", "/");
         // 重新加载主页面，以重新尝试获取token
-        // window.location.reload();
+        window.location.reload();
       },
     }),
     Session.init({
@@ -162,39 +161,14 @@ async function getToken() {
 
 function App() {
   const [accessToken, setAccessToken] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
-
-  const updateTokenAndUserInfo = useCallback(async () => {
-    try {
+  useEffect(() => {
+    async function fetchToken() {
       const token = await getToken();
       setAccessToken(token);
-      if (token) {
-        const userId = await Session.getUserId();
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_DOMAIN}/api/profile`,
-          {
-            params: { id: userId },
-          }
-        );
-        setUserInfo({
-          userId: userId,
-          email: response.data.email,
-          name: `${response.data.preferredName || ""} ${
-            response.data.lastName || ""
-          }`.trim(),
-          imgUrl: response.data.avatar || emptyAvatar,
-        });
-      } else {
-        setUserInfo(null);
-      }
-    } catch (error) {
-      console.error("Error updating token and user info:", error);
     }
-  }, []);
 
-  useEffect(() => {
-    updateTokenAndUserInfo();
-  }, [updateTokenAndUserInfo]);
+    fetchToken();
+  }, []);
 
   return (
     <>
