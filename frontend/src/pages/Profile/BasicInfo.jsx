@@ -13,9 +13,15 @@ const BasicInfo = ({ formData, handleChange, setFormData }) => {
 
   // 计算年龄的函数
   const calculateAge = (birthday) => {
-    const ageDifMs = Date.now() - new Date(birthday).getTime();
-    const ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    if (!birthday) return null; // 如果没有生日，返回 null
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return isNaN(age) ? null : age; // 如果计算结果是 NaN，返回 null
   };
 
   const age = formData.birthday ? calculateAge(formData.birthday) : null;

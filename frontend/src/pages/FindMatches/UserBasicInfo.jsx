@@ -16,13 +16,18 @@ import emptyAvatar from "../../assets/empty_avatar.jpg";
 
 const UserBasicInfo = ({ profile, calculateAge, role }) => {
   const roleInfo = profile[`${role}_info`] || {};
-  const experience = roleInfo[`${role}_experience`] || "";
-  const lookingFor = roleInfo[`${role}_lookingfor`] || [];
 
-  // 获取所有地址的城市名称
+  // 修改这部分代码以处理 addresses 可能是对象的情况
   const cities = profile.addresses
-    ? profile.addresses
-        .filter((address) => address && address.formattedCity)
+    ? (typeof profile.addresses === "object" &&
+      !Array.isArray(profile.addresses)
+        ? Object.values(profile.addresses)
+        : profile.addresses
+      )
+        .filter(
+          (address) =>
+            address && typeof address === "object" && address.formattedCity
+        )
         .map((address) => address.formattedCity.split(",")[0].trim())
         .filter((city) => city !== "")
     : [];

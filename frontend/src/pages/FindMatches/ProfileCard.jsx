@@ -21,13 +21,26 @@ const ProfileCard = ({ profile, isLoading, modal_index, role }) => {
   const roleInfo = profile[`${role}_info`] || {};
   const images = roleInfo[`${role}_images`] || [];
   const experience = roleInfo[`${role}_experience`] || "";
-  const lookingFor = roleInfo[`${role}_lookingfor`] || [];
-  const cities = profile.addresses
-    ? profile.addresses
-        .filter((address) => address && address.formattedCity)
-        .map((address) => address.formattedCity.split(",")[0].trim())
-        .filter((city) => city !== "")
-    : [];
+  const lookingFor = roleInfo[`${role}_lookingfor`] || {};
+
+  // 确保 lookingFor 是一个数组或对象
+  let lookingForArray = [];
+  if (Array.isArray(lookingFor)) {
+    lookingForArray = lookingFor;
+  } else if (typeof lookingFor === "object" && lookingFor !== null) {
+    lookingForArray = Object.values(lookingFor);
+  } else if (typeof lookingFor === "string") {
+    lookingForArray = [lookingFor];
+  }
+
+  // 修改这部分代码
+  const cities =
+    profile.addresses && typeof profile.addresses === "object"
+      ? Object.values(profile.addresses)
+          .filter((address) => address && address.formattedCity)
+          .map((address) => address.formattedCity.split(",")[0].trim())
+          .filter((city) => city !== "")
+      : [];
 
   const socialMedia = [
     { icon: FaInstagram, link: profile.instagram },
@@ -70,7 +83,7 @@ const ProfileCard = ({ profile, isLoading, modal_index, role }) => {
               </h2>
             </div>
             <div className="min-h-[4rem]">
-              <LookingForSection items={lookingFor} />
+              <LookingForSection items={lookingForArray} />
             </div>
             <div className="min-h-[2rem]">
               <LocationSection items={cities} maxItems={2} />
@@ -92,7 +105,17 @@ const ProfileCard = ({ profile, isLoading, modal_index, role }) => {
 };
 
 const LookingForSection = ({ items }) => {
-  if (items.length === 0) return null;
+  // 确保 items 是一个数组
+  let itemsArray = [];
+  if (Array.isArray(items)) {
+    itemsArray = items;
+  } else if (typeof items === "object" && items !== null) {
+    itemsArray = Object.values(items);
+  } else if (typeof items === "string") {
+    itemsArray = [items];
+  }
+
+  if (itemsArray.length === 0) return null;
 
   const getIcon = (item) => {
     const lowerItem = item.toLowerCase();
@@ -112,7 +135,7 @@ const LookingForSection = ({ items }) => {
     <div className="flex flex-col">
       <span className="text-sm font-semibold mb-1">I'm looking for:</span>
       <ul className="list-disc list-inside text-sm">
-        {items.map((item, index) => (
+        {itemsArray.map((item, index) => (
           <li key={index} className="flex items-center">
             {getIcon(item)}
             <span>{item}</span>

@@ -6,6 +6,25 @@ import CitySearch from "./CitySearch";
 import ProfileGrid from "./ProfileGrid";
 import NoProfilesPrompt from "./NoProfilesPrompt";
 
+const processUserData = (userData, role) => {
+  const roleInfo = userData[`${role}_info`] || {};
+  let images = roleInfo[`${role}_images`] || [];
+
+  if (typeof images === "object" && !Array.isArray(images)) {
+    images = Object.values(images);
+  } else if (!Array.isArray(images)) {
+    images = [];
+  }
+
+  return {
+    ...userData,
+    [`${role}_info`]: {
+      ...roleInfo,
+      [`${role}_images`]: images,
+    },
+  };
+};
+
 function FindMatches({ token }) {
   const [profiles, setProfiles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("model");
@@ -33,13 +52,15 @@ function FindMatches({ token }) {
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      if (append) {
-        setProfiles((prev) => [...prev, ...data.users]);
-      } else {
-        setProfiles(data.users);
-      }
-      setHasMore(data.hasMore);
+      const processedProfiles = data.users.map((user) =>
+        processUserData(user, role)
+      );
+
+      setProfiles(
+        append ? [...profiles, ...processedProfiles] : processedProfiles
+      );
       setTotalCount(data.totalCount);
+      setHasMore(data.hasMore);
     } catch (error) {
       console.error("Error fetching profiles:", error);
     } finally {

@@ -8,15 +8,22 @@ const ProfileImageSlider = ({ profile, role }) => {
   const sliderRef = useRef(null);
 
   const roleInfo = profile[`${role}_info`] || {};
-  const images = roleInfo[`${role}_images`] || [];
+  let images = roleInfo[`${role}_images`] || [];
+
+  // 确保 images 是一个数组
+  if (typeof images === "object" && !Array.isArray(images)) {
+    images = Object.values(images);
+  } else if (!Array.isArray(images)) {
+    images = [];
+  }
 
   const settings = {
     dots: false,
-    infinite: images.length > 1, // 只有当有多于一张图片时才设置为 true
+    infinite: images.length > 1,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    nextArrow: images.length > 1 ? <NextArrow /> : null, // 只有多张图片时才显示箭头
+    nextArrow: images.length > 1 ? <NextArrow /> : null,
     prevArrow: images.length > 1 ? <PrevArrow /> : null,
     afterChange: (index) => setCurrentIndex(index),
   };
