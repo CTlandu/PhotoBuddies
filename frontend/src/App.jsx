@@ -30,7 +30,6 @@ import About from "./pages/About/About";
 import CookieConsent from "./components/CookieConsent";
 import Test from "./pages/Test";
 import User_Settings from "./pages/User_Settings/User_Settings";
-import axios from "axios";
 
 console.log("appName:", import.meta.env.VITE_APP_NAME);
 console.log("apiDomain:", import.meta.env.VITE_API_DOMAIN);
