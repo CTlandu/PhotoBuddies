@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import { signOut } from "supertokens-auth-react/recipe/session";
 import { redirectToAuth } from "supertokens-auth-react";
@@ -7,33 +7,65 @@ import emptyAvatar from "../assets/empty_avatar.jpg";
 import FeatureVote from "./FeaturesVote";
 import { FaLightbulb } from "react-icons/fa";
 
-const Navbar = ({ token }) => {
+const Navbar = ({ token: initialToken }) => {
   const [avatar, setAvatar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
   const menuRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const [accessToken, setAccessToken] = useState(initialToken);
 
-  useEffect(() => {
-    const initializeNavbar = async () => {
-      try {
-        const sessionExists = await Session.doesSessionExist();
-        console.log("Session exists:", sessionExists);
+  const fetchUserInfo = useCallback(async () => {
+    try {
+      const userId = await Session.getUserId();
+      // console.log("Fetching user info for userId:", userId);
 
-        if (sessionExists) {
-          const accessToken = await Session.getAccessToken();
-          console.log("Access Token:", accessToken);
-          await fetchUserInfo();
-        } else {
-          console.log("No active session");
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error initializing Navbar:", error);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_DOMAIN}/api/profile`,
+        { params: { id: userId } }
+      );
+      //console.log("User profile response:", response.data);
+
+      setAvatar(response.data.avatar || emptyAvatar);
+      // console.log("Avatar set to:", response.data.avatar || emptyAvatar);
+
+      setUserInfo({
+        userId,
+        email: response.data.email,
+        name: `${response.data.preferredName || ""} ${
+          response.data.lastName || ""
+        }`.trim(),
+        imgUrl: response.data.avatar || emptyAvatar,
+      });
+      // console.log("User info set:", userInfo);
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const initializeNavbar = useCallback(async () => {
+    try {
+      const sessionExists = await Session.doesSessionExist();
+      // console.log("Session exists:", sessionExists);
+
+      if (sessionExists) {
+        const token = await Session.getAccessToken();
+        //console.log("Access Token:", token);
+        setAccessToken(token);
+        await fetchUserInfo();
+      } else {
+        console.log("No active session");
         setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error initializing Navbar:", error);
+      setLoading(false);
+    }
+  }, [fetchUserInfo]);
 
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         menuRef.current.removeAttribute("open");
@@ -46,43 +78,29 @@ const Navbar = ({ token }) => {
       }
     };
 
-    initializeNavbar();
+    // 非常重要！！此处强制初始化navbar，避免了navbar在session存在但token为空时无法显示的问题（第三方用户新注册后）
+    // tmd搞了两天，最后还是用最笨的方法解决了
+    const attemptInitialization = async () => {
+      if (initialToken) {
+        await initializeNavbar();
+      } else {
+        // 如果没有初始 token，尝试获取一次
+        await initializeNavbar();
+        // 如果还是没有 token，就放弃
+        if (!accessToken) {
+          setLoading(false);
+        }
+      }
+    };
+
+    attemptInitialization();
+
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [token]);
-
-  async function fetchUserInfo() {
-    try {
-      const userId = await Session.getUserId();
-      console.log("Fetching user info for userId:", userId);
-
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_DOMAIN}/api/profile`,
-        { params: { id: userId } }
-      );
-      console.log("User profile response:", response.data);
-
-      setAvatar(response.data.avatar || emptyAvatar);
-      console.log("Avatar set to:", response.data.avatar || emptyAvatar);
-
-      setUserInfo({
-        userId,
-        email: response.data.email,
-        name: `${response.data.preferredName || ""} ${
-          response.data.lastName || ""
-        }`.trim(),
-        imgUrl: response.data.avatar || emptyAvatar,
-      });
-      console.log("User info set:", userInfo);
-    } catch (error) {
-      console.error("Error fetching user info:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [initialToken, initializeNavbar]);
 
   async function onLogout() {
     await signOut();
@@ -107,7 +125,7 @@ const Navbar = ({ token }) => {
             {/* 左侧部分 - PhotoBuddy Logo 和 菜单项 */}
             <div className="flex items-center">
               <a className="btn btn-ghost text-xl" href="/">
-                PhotoBuddy
+                PhotoBuddies
               </a>
 
               {/* 中间部分 - 菜单项 */}
@@ -116,7 +134,7 @@ const Navbar = ({ token }) => {
                   <li>
                     <a
                       href="/about"
-                      className="btn btn-sm btn-ghost hover:btn-primary text-sm mx-2 rounded-full transition-colors duration-300"
+                      className="btn btn-sm btn-ghost hover:btn-primary text-sm mx-2 rounded-full transition-colors duration-200"
                     >
                       About
                     </a>
@@ -124,7 +142,7 @@ const Navbar = ({ token }) => {
                   <li>
                     <a
                       href="/findmatches"
-                      className="btn btn-sm btn-warning hover:btn-ghost text-sm mx-2 rounded-full transition-colors duration-300"
+                      className="btn btn-sm btn-secondary hover:btn-ghost text-sm mx-2 rounded-full transition-colors duration-200"
                     >
                       Find Matches!
                     </a>
@@ -133,7 +151,7 @@ const Navbar = ({ token }) => {
                     {/* Suggest Feature 按钮 */}
                     <FeatureVote
                       userInfo={userInfo}
-                      className="btn btn-sm btn-outline btn-accent rounded-full h-full flex items-center justify-center ml-4 transition-colors duration-300"
+                      className="btn btn-sm btn-outline btn-accent rounded-full h-full flex items-center justify-center ml-4 transition-colors duration-200"
                       title="Suggest a feature!"
                     >
                       <FaLightbulb className="mr-1 sm:mr-2" />
@@ -198,7 +216,7 @@ const Navbar = ({ token }) => {
             {/* 右侧部分 - 登录/头像 */}
             <div className="flex-none flex items-center ml-auto">
               <ul className="menu menu-horizontal px-1">
-                {token ? (
+                {accessToken ? (
                   <li className="flex items-center">
                     <details className="relative" ref={menuRef}>
                       <summary
