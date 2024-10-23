@@ -39,7 +39,7 @@ function superTokensInit() {
     },
     appInfo: {
       // learn more about this on https://supertokens.com/docs/thirdpartyemailpassword/appinfo
-      appName: "photobuddy",
+      appName: "photobuddies",
       apiDomain: process.env.REACT_APP_API_URL,
       websiteDomain: process.env.REACT_APP_FRONTEND_URL,
       apiBasePath: "/auth",
