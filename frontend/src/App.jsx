@@ -30,6 +30,7 @@ import About from "./pages/About/About";
 import CookieConsent from "./components/CookieConsent";
 import Test from "./pages/Test";
 import User_Settings from "./pages/User_Settings/User_Settings";
+import axios from "axios";
 
 console.log("appName:", import.meta.env.VITE_APP_NAME);
 console.log("apiDomain:", import.meta.env.VITE_API_DOMAIN);
@@ -101,42 +102,57 @@ SuperTokens.init({
       contactMethod: "EMAIL_OR_PHONE",
       onHandleEvent: async (context) => {
         console.log("EmailPassword onHandleEvent called", context);
-        if (context.action === "EMAIL_VERIFICATION_SUCCESSFUL") {
-          console.log("邮箱验证成功，尝试保存用户信息");
-          let { id, email } = context.user;
-          const userInfo = {
-            id: id,
-            email: email,
-          };
-          try {
-            console.log("发送请求到 /api/saveUserInfo");
-            const response = await fetch(
-              `${import.meta.env.VITE_API_DOMAIN}/api/saveUserInfo`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userInfo),
-                credentials: "include",
+        if (context.action === "SUCCESS") {
+          if (
+            context.isNewRecipeUser &&
+            context.user.loginMethods.length === 1
+          ) {
+            console.log("检测到新用户注册，调用 emailUserSignUp");
+            // TODO: Sign up
+            try {
+              console.log("发送请求到 /api/emailUserSignUp");
+              console.log("获取到的user_id", context.user.id);
+              console.log("获取到的email", context.user.emails[0]);
+
+              const signUpResponse = await fetch(
+                `${import.meta.env.VITE_API_DOMAIN}/api/emailUserSignUp`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    id: context.user.id,
+                    email: context.user.emails[0],
+                  }),
+                  credentials: "include", // 这相当于 axios 的 withCredentials: true
+                }
+              );
+
+              console.log("响应状态:", signUpResponse.status);
+              if (signUpResponse.status === 200) {
+                console.log("新用户信息保存成功");
+              } else {
+                console.error("保存新用户信息失败");
               }
-            );
-            console.log("响应状态:", response.status);
-            if (response.ok) {
-              const responseData = await response.json();
-              console.log("响应数据:", responseData);
-              console.log("用户信息保存成功");
-              // 可以在这里添加额外的逻辑，比如重定向到主页
-              window.location.href = "/";
-            } else {
-              console.error("保存用户信息失败");
+            } catch (error) {
+              console.error("保存新用户信息时出错:", error);
+              if (error.response) {
+                console.error("响应数据:", error.response.data);
+                console.error("响应状态:", error.response.status);
+              } else if (error.request) {
+                console.error("没有收到响应");
+              } else {
+                console.error("错误信息:", error.message);
+              }
             }
-          } catch (error) {
-            console.error("保存用户信息时出错:", error);
+          } else {
+            // TODO: Sign in
+            window.location.href = "/findmatches";
           }
         }
         // 重新加载主页面，以重新尝试获取token
-        window.location.reload();
+        // window.location.reload();
       },
     }),
     Session.init({

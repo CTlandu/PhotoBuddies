@@ -64,31 +64,49 @@ router.put("/profile", async (req, res) => {
   }
 });
 
+// 检查用户是否存在
+router.get("/checkUser", async (req, res) => {
+  console.log("checkUser api被调用");
+  try {
+    const { id } = req.query;
+    const user = await User.findOne({ id });
+    res.json({ exists: !!user });
+  } catch (error) {
+    console.error("Error checking user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // 用户注册
-router.post("/saveUserInfo", verifySession(), async (req, res) => {
-  const session = req.session;
-  const userId = session.getUserId();
+router.post("/emailUserSignUp", async (req, res) => {
+  console.log("emailUserSignUp route called");
 
   try {
-    const user = await getUser(userId);
-    if (!user.isEmailVerified) {
-      return res.status(403).json({ message: "Email not verified" });
+    const { id, email } = req.body;
+
+    if (!id || !email) {
+      return res.status(400).json({ message: "Missing id or email" });
     }
 
-    const userInfo = {
-      id: userId,
-      email: user.email,
-      ...req.body,
-    };
+    // 创建新用户
+    const newUser = new User({
+      id: id,
+      email: email,
+    });
 
-    const newUser = new User(userInfo);
+    // 保存新用户到数据库
     await newUser.save();
-    console.log("User information saved:", userInfo);
+
+    console.log("New user information saved:", newUser);
     res
       .status(200)
       .json({ message: "User information saved successfully", user: newUser });
   } catch (error) {
     console.error("Error saving user information:", error);
+    // 如果错误是由于重复的唯一键（例如 id 或 email）引起的，返回适当的错误消息
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "User already exists" });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 });
