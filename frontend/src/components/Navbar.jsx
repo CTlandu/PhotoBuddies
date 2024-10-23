@@ -1,82 +1,38 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { signOut } from "supertokens-auth-react/recipe/session";
-import { redirectToAuth } from "supertokens-auth-react";
+import { signOut, redirectToAuth } from "supertokens-auth-react/recipe/session";
 import Session from "supertokens-auth-react/recipe/session";
 import emptyAvatar from "../assets/empty_avatar.jpg";
 import FeatureVote from "./FeaturesVote";
-import { FaLightbulb } from "react-icons/fa"; // 导入灯泡图标
+import { FaLightbulb } from "react-icons/fa";
 
 const Navbar = ({ token }) => {
   const [avatar, setAvatar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
+  const menuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
-  const menuRef = useRef(null); // 头像部分的菜单
-  const mobileMenuRef = useRef(null); // 小屏幕下的菜单
-
-  // 页面刷新时，获取头像等登录信息
   useEffect(() => {
-    if (token) {
-      console.log("Navbar收到了Token");
-      fetchUserInfo();
-    } else {
-      setTimeout(() => {
-        // 如果1秒后还没有收到token，则应该是真的没有了，遂呈现未登录状态的Navbar
-        console.log("Navbar没收到Token!");
-        setLoading(false); // 如果没有token，不发起请求，直接结束loading状态
-      }, 1000);
-    }
-  }, [token]);
+    const initializeNavbar = async () => {
+      try {
+        const sessionExists = await Session.doesSessionExist();
+        console.log("Session exists:", sessionExists);
 
-  async function fetchUserInfo() {
-    try {
-      const userId = await Session.getUserId();
-
-      // 通过 userId 获取用户资料
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_DOMAIN}/api/profile`,
-        {
-          params: { id: userId },
+        if (sessionExists) {
+          const accessToken = await Session.getAccessToken();
+          console.log("Access Token:", accessToken);
+          await fetchUserInfo();
+        } else {
+          console.log("No active session");
+          setLoading(false);
         }
-      );
-      // 设置头像
-      setAvatar(response.data.avatar);
+      } catch (error) {
+        console.error("Error initializing Navbar:", error);
+        setLoading(false);
+      }
+    };
 
-      // 设置用户信息
-      setUserInfo({
-        userId: userId,
-        email: response.data.email,
-        name: `${response.data.preferredName || ""} ${
-          response.data.lastName || ""
-        }`.trim(),
-        imgUrl: response.data.avatar || emptyAvatar,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // supertoken提供的logout方法（signOut)
-  async function onLogout() {
-    await signOut();
-    window.location.href = "/";
-  }
-
-  // 点击登录按钮后，跳转到supertoken提供的login页面
-  async function onLogin() {
-    redirectToAuth();
-  }
-
-  /**
-   * 点击菜单外时处理函数
-   *
-   * @param event 鼠标点击事件对象
-   * @returns 无返回值
-   */
-  useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         menuRef.current.removeAttribute("open");
@@ -89,16 +45,58 @@ const Navbar = ({ token }) => {
       }
     };
 
+    initializeNavbar();
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [token]);
 
-  // 若页面正在加载（还没获取到token），则返回null（空页面）
-  if (loading) {
-    return null;
+  async function fetchUserInfo() {
+    try {
+      const userId = await Session.getUserId();
+      console.log("Fetching user info for userId:", userId);
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_DOMAIN}/api/profile`,
+        { params: { id: userId } }
+      );
+      console.log("User profile response:", response.data);
+
+      setAvatar(response.data.avatar || emptyAvatar);
+      console.log("Avatar set to:", response.data.avatar || emptyAvatar);
+
+      setUserInfo({
+        userId,
+        email: response.data.email,
+        name: `${response.data.preferredName || ""} ${
+          response.data.lastName || ""
+        }`.trim(),
+        imgUrl: response.data.avatar || emptyAvatar,
+      });
+      console.log("User info set:", userInfo);
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+    } finally {
+      setLoading(false);
+    }
   }
+
+  async function onLogout() {
+    await signOut();
+    window.location.href = "/";
+  }
+
+  async function onLogin() {
+    redirectToAuth();
+  }
+
+  async function onSignUp() {
+    redirectToAuth({ show: "signup" });
+  }
+
+  if (loading) return null;
 
   return (
     <>
@@ -234,9 +232,20 @@ const Navbar = ({ token }) => {
                     </details>
                   </li>
                 ) : (
-                  <li>
-                    <button onClick={onLogin}>Log in/Sign up</button>
-                  </li>
+                  <div className="flex items-center space-x-1 sm:space-x-2">
+                    <button
+                      onClick={onLogin}
+                      className="btn btn-xs sm:btn-sm btn-outline btn-primary px-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium h-8 sm:h-10 min-h-0 flex items-center justify-center"
+                    >
+                      Log in
+                    </button>
+                    <button
+                      onClick={onSignUp}
+                      className="btn btn-xs sm:btn-sm btn-primary px-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium h-8 sm:h-10 min-h-0 flex items-center justify-center"
+                    >
+                      Sign up
+                    </button>
+                  </div>
                 )}
               </ul>
             </div>
