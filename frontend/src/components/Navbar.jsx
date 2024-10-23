@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { signOut, redirectToAuth } from "supertokens-auth-react/recipe/session";
+import { signOut } from "supertokens-auth-react/recipe/session";
+import { redirectToAuth } from "supertokens-auth-react";
 import Session from "supertokens-auth-react/recipe/session";
 import emptyAvatar from "../assets/empty_avatar.jpg";
 import FeatureVote from "./FeaturesVote";
@@ -113,14 +114,17 @@ const Navbar = ({ token }) => {
               <div className="hidden lg:flex md:flex ml-4 items-center">
                 <ul className="menu menu-horizontal px-1 flex items-center">
                   <li>
-                    <a href="/about" className="btn btn-primary text-md mx-2">
+                    <a
+                      href="/about"
+                      className="btn btn-sm btn-ghost hover:btn-primary text-sm mx-2 rounded-full transition-colors duration-300"
+                    >
                       About
                     </a>
                   </li>
                   <li>
                     <a
                       href="/findmatches"
-                      className="btn btn-secondary text-md mx-2"
+                      className="btn btn-sm btn-warning hover:btn-ghost text-sm mx-2 rounded-full transition-colors duration-300"
                     >
                       Find Matches!
                     </a>
@@ -129,11 +133,13 @@ const Navbar = ({ token }) => {
                     {/* Suggest Feature 按钮 */}
                     <FeatureVote
                       userInfo={userInfo}
-                      className="btn btn-sm btn-outline btn-accent rounded-full h-full flex items-center justify-center ml-4"
+                      className="btn btn-sm btn-outline btn-accent rounded-full h-full flex items-center justify-center ml-4 transition-colors duration-300"
                       title="Suggest a feature!"
                     >
-                      <FaLightbulb className="mr-2" />
-                      Suggest Anything!
+                      <FaLightbulb className="mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">
+                        Suggest Anything!
+                      </span>
                     </FeatureVote>
                   </li>
                 </ul>
@@ -161,7 +167,7 @@ const Navbar = ({ token }) => {
                     <li className="mb-2">
                       <a
                         href="/about"
-                        className="btn btn-sm btn-primary rounded-full w-full flex items-center justify-center"
+                        className="btn btn-xs btn-primary rounded-full w-full flex items-center justify-center"
                       >
                         About
                       </a>
@@ -169,7 +175,7 @@ const Navbar = ({ token }) => {
                     <li className="mb-2">
                       <a
                         href="/findmatches"
-                        className="btn btn-sm btn-secondary rounded-full w-full flex items-center justify-center"
+                        className="btn btn-xs btn-secondary rounded-full w-full flex items-center justify-center"
                       >
                         Find Matches!
                       </a>
@@ -177,7 +183,7 @@ const Navbar = ({ token }) => {
                     <li>
                       <FeatureVote
                         userInfo={userInfo}
-                        className="btn btn-sm btn-outline btn-accent rounded-full w-full"
+                        className="btn btn-xs btn-outline btn-accent rounded-full w-full"
                         title="Suggest a feature!"
                       >
                         <FaLightbulb className="" />
