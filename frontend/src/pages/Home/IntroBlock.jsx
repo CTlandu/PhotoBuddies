@@ -3,8 +3,8 @@ import HeroImage from "../../assets/hero_img.jpg";
 import { redirectToAuth } from "supertokens-auth-react";
 
 const IntroBlock = () => {
-  async function onLogin() {
-    redirectToAuth();
+  async function onSignUp() {
+    redirectToAuth({ show: "signup" });
   }
 
   return (
@@ -18,7 +18,7 @@ const IntroBlock = () => {
             Find Your Perfect Creative Match at{" "}
             <b className="text-pink-purple text-xl">PhotoBuddy</b>
           </p>
-          <button className="btn btn-accent mx-1" onClick={onLogin}>
+          <button className="btn btn-accent mx-1" onClick={onSignUp}>
             Sign Up
           </button>
           <button className="btn btn-info mx-1">
