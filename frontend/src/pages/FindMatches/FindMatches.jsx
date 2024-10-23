@@ -75,46 +75,45 @@ function FindMatches({ token }) {
         <Navbar token={token} />
       </div>
       <div className="min-h-screen flex flex-col items-center bg-base-200">
-        {/* <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-          <SlowLoadBanner /> */}
-        <div className="flex flex-col items-center mt-4 bg-base w-full">
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 w-full">
-            <RoleSelector
-              selectedRole={selectedRole}
-              onRoleChange={handleRoleChange}
-            />
-            <CitySearch onCityChange={handleCityChange} />
+        <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center mt-4 bg-base w-full">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 w-full">
+              <RoleSelector
+                selectedRole={selectedRole}
+                onRoleChange={handleRoleChange}
+              />
+              <CitySearch onCityChange={handleCityChange} />
+            </div>
           </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center mt-16">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : profiles.length > 0 ? (
+            <>
+              <ProfileGrid profiles={profiles} selectedRole={selectedRole} />
+              {hasMore ? (
+                <div className="flex justify-center mt-4">
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleLoadMore}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Loading..." : "Load More"}
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-4 text-center">
+                  <p>You have reached the end.</p>
+                  <p>Total Profiles: {totalCount}</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <NoProfilesPrompt city={selectedCity} selectedRole={selectedRole} />
+          )}
         </div>
-        {isLoading ? (
-          <div className="flex justify-center items-center mt-16">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : profiles.length > 0 ? (
-          <>
-            <ProfileGrid profiles={profiles} selectedRole={selectedRole} />
-            {hasMore ? (
-              <div className="flex justify-center mt-4">
-                <button
-                  className="btn btn-primary"
-                  onClick={handleLoadMore}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Loading..." : "Load More"}
-                </button>
-              </div>
-            ) : (
-              <div className="mt-4 text-center">
-                <p>You have reached the end.</p>
-                <p>Total Profiles: {totalCount}</p>
-              </div>
-            )}
-          </>
-        ) : (
-          <NoProfilesPrompt city={selectedCity} selectedRole={selectedRole} />
-        )}
       </div>
-      {/* </div> */}
     </>
   );
 }
