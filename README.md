@@ -1,127 +1,119 @@
 # PhotoBuddies
 
-PhotoBuddy is a web project developed using the MERN (MongoDB, Express.js, React.js, Node.js) stack, designed to connect photographers and models, helping them find suitable matches. The project is divided into frontend (`frontend`) and backend (`backend`) components, and is deployed using Docker containers.
-
-## Project Structure
-
-PhotoBuddies 是一个基于 MERN (MongoDB, Express.js, React.js, Node.js) 栈开发的 Web 项目，旨在连接摄影师和模特，帮助他们找到合适的匹配。该项目分为前端（`frontend`）和后端（`backend`）两个部分，并通过 Docker 容器化进行部署。
-
-## 项目整体结构
-
-PhotoBuddy/
-│
-├── backend/ # Backend code, including API, database connections, etc.
-│
-├── frontend/ # Frontend code, including React components and pages
-│
-├── (Important).env.development # Configuration file for development environment (for backend)
-│
-├── (Ignore).env.production # Configuration file for production environment (for backend)
-│
-├── (Important)docker-compose.yml # Docker Compose configuration file for containerized deployment
-│
-├── (Ignore)package.json # Project configuration file for Render (deployment platform)
-│
-└── .gitignore # Git ignore file configuration
-
-## Usage Instructions
-
-1. Ensure Docker is installed locally, open Docker, and log in successfully.
-
-2. Use `docker-compose` to start the project:
-
-   Navigate to the ./PhotoBuddy directory in your terminal and run the following command:
-
-   ```
-   docker-compose up --build
-   ```
-
-3. The frontend application will run on http://localhost:3001 (note the port is 3001, not 3000, changed earlier for testing), and the backend API will run on http://localhost:4000.
-
-4. Open your browser and visit http://localhost:3001 to view the frontend page.
-
-5. Open your browser and visit http://localhost:4000/auth/dashboard to view SuperTokens backend user data (username and password required). This is not frequently used if you're not developing the backend.
-
-## GitHub Collaboration Guidelines
-
-1. The master branch is the main project branch. Please do not modify it arbitrarily.
-
-2. When developing new features, please fork the dev branch and create your own branch. Merge back to the dev branch after development is complete.
-
-3. Before starting development, pull the dev branch to avoid code conflicts.
+<img src="assets/hero_page.png" alt="PhotoBuddies Preview" width="50%">
 
 ## Technology Stack
 
-- Frontend: React.js
-- Backend: Node.js, Express.js
-- Database: MongoDB
-- Authentication: SuperTokens
-- Deployment: Docker, Docker Compose
+- **Frontend**: React.js ⚛️
+- **Backend**: Node.js, Express.js 🟢
+- **Database**: MongoDB 🍃
+- **Authentication**: SuperTokens 🔐
+- **Deployment**: Docker, Docker Compose 🐳
+
+## Introduction
+
+PhotoBuddies is a web application developed using the MERN (MongoDB, Express.js, React.js, Node.js) stack. It aims to connect photographers and models, providing a social platform to help them reach clients more effectively. The project is divided into frontend and backend components and is deployed using Docker containers.
+
+## Features
+
+- **User Profiles**: Create and manage profiles tailored for photographers and models. 👤
+- **Portfolio Showcase**: Display your work and skills to attract potential collaborators. 📸
+- **Matching System**: Find suitable matches based on location and role. 🔍
+- **Secure Authentication**: Powered by SuperTokens for robust user management. 🔒
+- **Dockerized Deployment**: Easy setup and deployment using Docker. 🚀
+
+## Purpose
+
+The primary goal of PhotoBuddies is to bridge the gap between photographers and models by offering a dedicated platform for collaboration. It simplifies the process of finding local talent, building portfolios, and expanding professional networks.
+
+## How to Run
+
+1. Ensure Docker is installed and running on your machine.
+2. Navigate to the `./PhotoBuddy` directory in your terminal.
+3. Run the following command to start the project:
+   ```bash
+   docker-compose up --build
+   ```
+4. Access the frontend at [http://localhost:3001](http://localhost:3001).
+5. Access the backend API at [http://localhost:4000](http://localhost:4000).
+
+## Live Demo
+
+Check out the live version of PhotoBuddies at [photobuddies.org](http://photobuddies.org).
+
+## GitHub Collaboration Guidelines
+
+1. The `master` branch is the main project branch. Please do not modify it arbitrarily.
+2. For new features, fork the `dev` branch and create your own branch. Merge back to `dev` after development is complete.
+3. Pull the `dev` branch before starting development to avoid conflicts.
+
+## Technology Stack
+
+- **Frontend**: React.js
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **Authentication**: SuperTokens
+- **Deployment**: Docker, Docker Compose
 
 ## Contribution
 
-Contributions of code or suggestions are welcome. Please follow the GitHub collaboration guidelines above to ensure code quality and project stability.
+Contributions and suggestions are welcome. Please follow the GitHub collaboration guidelines to ensure code quality and project stability.
 
 ## License
 
-[MIT License](LICENSE)
+This project is licensed under the [MIT License](LICENSE).
 
-```
-PhotoBuddy/
-│
-├── backend/                  # 后端代码，包含 API、数据库连接等
-│
-├── frontend/                 # 前端代码，包含 React 组件和页面
-│
-├── (重要).env.development    # 开发环境的配置文件（给后端用的）
-│
-├── (不用管).env.production   # 生产环境的配置文件（给后端用的）
-│
-├── (重要)docker-compose.yml  # Docker Compose 配置文件，用于容器化部署
-│
-├── (不用管)package.json      # 项目在 Render(部署平台)上的配置文件
-│
-└── .gitignore                # Git 忽略文件配置
-```
+---
 
-## 使用说明
+## 项目介绍
 
-1. 确保本地已经下载 Docker，打开 Docker 并成功登录。
+PhotoBuddies 是一个基于 MERN (MongoDB, Express.js, React.js, Node.js) 栈开发的 Web 应用，旨在连接摄影师和模特，提供一个社交平台，帮助他们更好地接触客户。项目分为前端和后端部分，并通过 Docker 容器化进行部署。
 
-2. 使用 `docker-compose` 启动项目：
+## 功能
 
-   用终端进入到 ./PhotoBuddy 目录下，运行以下命令：
+- **用户资料**：创建和管理专为摄影师和模特设计的个人资料。👤
+- **作品集展示**：展示您的作品和技能，以吸引潜在的合作者。📸
+- **匹配系统**：根据位置和角色找到合适的匹配。🔍
+- **安全认证**：由 SuperTokens 提供强大的用户管理。🔒
+- **Docker 化部署**：使用 Docker 轻松设置和部署。🚀
 
-   ```
+## 目的
+
+PhotoBuddies 的主要目标是通过提供一个专用平台来弥合摄影师和模特之间的差距。它简化了寻找本地人才、建立作品集和扩展专业网络的过程。
+
+## 如何运行
+
+1. 确保您的计算机上已安装并运行 Docker。
+2. 在终端中进入 `./PhotoBuddy` 目录。
+3. 运行以下命令启动项目：
+   ```bash
    docker-compose up --build
    ```
+4. 访问前端页面：[http://localhost:3001](http://localhost:3001)。
+5. 访问后端 API：[http://localhost:4000](http://localhost:4000)。
 
-3. 前端应用将运行在 http://localhost:3001 （注意这里有个 1，不是 3000，之前为了测试端口改的），后端 API 将运行在 http://localhost:4000。
+## 在线演示
 
-4. 打开浏览器，访问 http://localhost:3001，即可看到前端页面。
-
-5. 打开浏览器，访问 http://localhost:4000/auth/dashboard，即可查看 SuperTokens 后端用户数据（需要用户名和密码）。若不开发后端则用不太到这里。
+查看 PhotoBuddies 的在线版本：[photobuddies.org](http://photobuddies.org)。
 
 ## GitHub 协作注意事项
 
-1. master 分支是项目主分支，请勿随意修改。
-
-2. 开发新功能时，请 fork dev 分支并新建属于自己的分支，开发完成后合并到 dev 分支。
-
-3. 每次准备开发前，先 pull 一下 dev 分支，避免代码冲突。
+1. `master` 分支是项目主分支，请勿随意修改。
+2. 开发新功能时，请 fork `dev` 分支并新建属于自己的分支，开发完成后合并到 `dev` 分支。
+3. 每次准备开发前，先 pull 一下 `dev` 分支，避免代码冲突。
 
 ## 技术栈
 
-- 前端：React.js
-- 后端：Node.js, Express.js
-- 数据库：MongoDB
-- 认证：SuperTokens
-- 部署：Docker, Docker Compose, Render
+- **前端**：React.js
+- **后端**：Node.js, Express.js
+- **数据库**：MongoDB
+- **认证**：SuperTokens
+- **部署**：Docker, Docker Compose
 
 ## 贡献
 
-欢迎贡献代码或提出建议。请遵循上述 GitHub 协作注意事项，确保代码质量和项目稳定性。
+欢迎贡献代码或提出建议。请遵循 GitHub 协作注意事项，确保代码质量和项目稳定性。
 
 ## 许可证
 
-[MIT License](LICENSE)
+本项目采用 [MIT 许可证](LICENSE)。
