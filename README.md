@@ -1,119 +1,132 @@
-# PhotoBuddies
+<div align="center">
 
-<img src="assets/hero_page.png" alt="PhotoBuddies Preview" width="50%">
+[English](#english) | [中文](#中文)
 
-## Technology Stack
+</div>
 
-- **Frontend**: React.js ⚛️
-- **Backend**: Node.js, Express.js 🟢
-- **Database**: MongoDB 🍃
-- **Authentication**: SuperTokens 🔐
-- **Deployment**: Docker, Docker Compose 🐳
+# PhotoBuddies 📸
 
-## Introduction
+<div id="english">
 
-PhotoBuddies is a web application developed using the MERN (MongoDB, Express.js, React.js, Node.js) stack. It aims to connect photographers and models, providing a social platform to help them reach clients more effectively. The project is divided into frontend and backend components and is deployed using Docker containers.
+> Platform connecting photographers with clients, disrupting the traditional agent-driven market.
 
-## Features
+<div align="center">
+   <img src="assets/hero_page.png" alt="PhotoBuddies Preview" width="50%">
+   
+   *PhotoBuddies Preview*
+</div>
+<div align="center">
+   <img src="assets/photobuddies_findmatches.png" alt="Find Matches Page" width="50%">
+   
+   *Showcase your portfolio and find matches!*
+</div>
 
-- **User Profiles**: Create and manage profiles tailored for photographers and models. 👤
-- **Portfolio Showcase**: Display your work and skills to attract potential collaborators. 📸
-- **Matching System**: Find suitable matches based on location and role. 🔍
-- **Secure Authentication**: Powered by SuperTokens for robust user management. 🔒
-- **Dockerized Deployment**: Easy setup and deployment using Docker. 🚀
+## 🌟 Live Demo
 
-## Purpose
+Experience PhotoBuddies at [photobuddies.org](http://photobuddies.org)
 
-The primary goal of PhotoBuddies is to bridge the gap between photographers and models by offering a dedicated platform for collaboration. It simplifies the process of finding local talent, building portfolios, and expanding professional networks.
+## 🛠️ Tech Stack
 
-## How to Run
+<div align="center">
 
-1. Ensure Docker is installed and running on your machine.
-2. Navigate to the `./PhotoBuddy` directory in your terminal.
-3. Run the following command to start the project:
-   ```bash
-   docker-compose up --build
-   ```
-4. Access the frontend at [http://localhost:3001](http://localhost:3001).
-5. Access the backend API at [http://localhost:4000](http://localhost:4000).
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-## Live Demo
+</div>
 
-Check out the live version of PhotoBuddies at [photobuddies.org](http://photobuddies.org).
+## ✨ Features
 
-## GitHub Collaboration Guidelines
+- 👤 **Profile Management**: Tailored profiles for photographers and models
+- 📸 **Portfolio Showcase**: Display your work professionally
+- 🔍 **Smart Matching**: Connect with potential clients based on style and location
+- 🤝 **Direct Collaboration**: No middleman, no agency fees
 
-1. The `master` branch is the main project branch. Please do not modify it arbitrarily.
-2. For new features, fork the `dev` branch and create your own branch. Merge back to `dev` after development is complete.
-3. Pull the `dev` branch before starting development to avoid conflicts.
+## 🚀 Quick Start
 
-## Technology Stack
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/photobuddies.git
 
-- **Frontend**: React.js
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Authentication**: SuperTokens
-- **Deployment**: Docker, Docker Compose
+# Navigate to the project directory
+cd photobuddies
 
-## Contribution
+# Start the application using Docker
+docker-compose up --build
+```
 
-Contributions and suggestions are welcome. Please follow the GitHub collaboration guidelines to ensure code quality and project stability.
+Access the application at:
 
-## License
+- Frontend: http://localhost:3001
+- API: http://localhost:4000
 
-This project is licensed under the [MIT License](LICENSE).
+## 🤝 Contributing
+
+1. Fork from `dev` branch
+2. Create your feature branch
+3. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE)
+
+</div>
 
 ---
 
-## 项目介绍
+<div id="中文">
 
-PhotoBuddies 是一个基于 MERN (MongoDB, Express.js, React.js, Node.js) 栈开发的 Web 应用，旨在连接摄影师和模特，提供一个社交平台，帮助他们更好地接触客户。项目分为前端和后端部分，并通过 Docker 容器化进行部署。
+# PhotoBuddies 📸
 
-## 功能
+## 🌟 在线演示
 
-- **用户资料**：创建和管理专为摄影师和模特设计的个人资料。👤
-- **作品集展示**：展示您的作品和技能，以吸引潜在的合作者。📸
-- **匹配系统**：根据位置和角色找到合适的匹配。🔍
-- **安全认证**：由 SuperTokens 提供强大的用户管理。🔒
-- **Docker 化部署**：使用 Docker 轻松设置和部署。🚀
+访问 PhotoBuddies：[photobuddies.org](http://photobuddies.org)
 
-## 目的
+## 🛠️ 技术栈
 
-PhotoBuddies 的主要目标是通过提供一个专用平台来弥合摄影师和模特之间的差距。它简化了寻找本地人才、建立作品集和扩展专业网络的过程。
+<div align="center">
 
-## 如何运行
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-1. 确保您的计算机上已安装并运行 Docker。
-2. 在终端中进入 `./PhotoBuddy` 目录。
-3. 运行以下命令启动项目：
-   ```bash
-   docker-compose up --build
-   ```
-4. 访问前端页面：[http://localhost:3001](http://localhost:3001)。
-5. 访问后端 API：[http://localhost:4000](http://localhost:4000)。
+</div>
 
-## 在线演示
+## ✨ 主要功能
 
-查看 PhotoBuddies 的在线版本：[photobuddies.org](http://photobuddies.org)。
+- 👤 **信息卡片展示**：为摄影师和模特定制的个性化卡片，展示偏好，风格，价格，联系方式等
+- 📸 **作品集展示**：专业的作品展示平台
+- 🔍 **智能匹配**：基于风格和地理位置的客户匹配
+- 🤝 **无中间商赚差价**：无中介，无代理费
 
-## GitHub 协作注意事项
+## 🚀 快速开始
 
-1. `master` 分支是项目主分支，请勿随意修改。
-2. 开发新功能时，请 fork `dev` 分支并新建属于自己的分支，开发完成后合并到 `dev` 分支。
-3. 每次准备开发前，先 pull 一下 `dev` 分支，避免代码冲突。
+```bash
+# 克隆仓库
+git clone https://github.com/yourusername/photobuddies.git
 
-## 技术栈
+# 进入项目目录
+cd photobuddies
 
-- **前端**：React.js
-- **后端**：Node.js, Express.js
-- **数据库**：MongoDB
-- **认证**：SuperTokens
-- **部署**：Docker, Docker Compose
+# 使用 Docker 启动应用
+docker-compose up --build
+```
 
-## 贡献
+访问地址：
 
-欢迎贡献代码或提出建议。请遵循 GitHub 协作注意事项，确保代码质量和项目稳定性。
+- 前端：http://localhost:3001
+- API：http://localhost:4000
 
-## 许可证
+## 🤝 参与贡献
 
-本项目采用 [MIT 许可证](LICENSE)。
+1. 从 `dev` 分支创建 fork
+2. 创建您的功能分支
+3. 提交 pull request
+
+## 📄 许可证
+
+本项目采用 [MIT 许可证](LICENSE)
+
+</div>
