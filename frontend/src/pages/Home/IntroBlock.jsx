@@ -16,7 +16,7 @@ const IntroBlock = () => {
           </h1>
           <p className="py-6 text-base lg:text-lg">
             Find Your Perfect Creative Match at{" "}
-            <b className="text-pink-purple text-xl">PhotoBuddy</b>
+            <b className="text-pink-purple text-xl">PhotoBuddies</b>
           </p>
           <button className="btn btn-accent mx-1" onClick={onSignUp}>
             Sign Up
